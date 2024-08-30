@@ -1,4 +1,5 @@
 import cv2
+import mediapipe as mp
 import numpy as np
 import threading
 import time
@@ -180,3 +181,52 @@ class FaceRecognizer:
                     self.frame = np.roll(self.frame, -step, axis=0)
                 elif direction == 'down':
                     self.frame = np.roll(self.frame, step, axis=0)
+
+                    def detect_faces_in_video(self, video_path):
+                        video = cv2.VideoCapture(video_path)
+                        while video.isOpened():
+                            ret, frame = video.read()
+                            if not ret:
+                                break
+                            gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+                            faces = self.face_cascade.detectMultiScale(gray, scaleFactor=1.1, minNeighbors=5,
+                                                                       minSize=(30, 30))
+                            for (x, y, w, h) in faces:
+                                cv2.rectangle(frame, (x, y), (x + w, y + h), (255, 0, 0), 2)
+                            cv2.imshow('Face Detection in Video', frame)
+                            if cv2.waitKey(1) & 0xFF == ord('q'):
+                                break
+                        video.release()
+                        cv2.destroyAllWindows()
+
+                    def take_photo(self, filename='photo.jpg'):
+                        if self.frame is not None:
+                            cv2.imwrite(filename, self.frame)
+                            print(f'Photo saved as {filename}')
+
+                    def detect_profile_face(self):
+                        profile_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_profileface.xml')
+                        while self.running:
+                            ret, self.frame = self.cap.read()
+                            if not ret:
+                                continue
+                            gray = cv2.cvtColor(self.frame, cv2.COLOR_BGR2GRAY)
+                            profiles = profile_cascade.detectMultiScale(gray, scaleFactor=1.1, minNeighbors=5,
+                                                                        minSize=(30, 30))
+                            for (x, y, w, h) in profiles:
+                                cv2.rectangle(self.frame, (x, y), (x + w, y + h), (0, 255, 255), 2)
+                            cv2.imshow('Profile Face Detection', self.frame)
+                            if cv2.waitKey(1) & 0xFF == ord('q'):
+                                self.stop()
+                                break
+
+                    def recognize_faces_in_photo(self, photo_path):
+                        img = cv2.imread(photo_path)
+                        gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+                        faces = self.face_cascade.detectMultiScale(gray, scaleFactor=1.1, minNeighbors=5,
+                                                                   minSize=(30, 30))
+                        for (x, y, w, h) in faces:
+                            cv2.rectangle(img, (x, y), (x + w, y + h), (255, 0, 0), 2)
+                        cv2.imshow('Face Recognition in Photo', img)
+                        cv2.waitKey(0)
+                        cv2.destroyAllWindows()
