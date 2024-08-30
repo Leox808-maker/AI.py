@@ -108,3 +108,119 @@ class Calculator:
         result = sum((x - mean_value) ** 2 for x in data) / len(data)
         self.history.append(result)
         return result
+
+
+    def std_dev(self, data):
+        var = self.variance(data)
+        result = math.sqrt(var)
+        self.history.append(result)
+        return result
+
+    def correlation(self, x, y):
+        if len(x) != len(y):
+            raise ValueError("Both datasets must have the same length")
+        result = pearsonr(x, y)[0]
+        self.history.append(result)
+        return result
+
+    def linear_regression(self, x, y):
+        if len(x) != len(y):
+            raise ValueError("Both datasets must have the same length")
+        n = len(x)
+        sum_x = sum(x)
+        sum_y = sum(y)
+        sum_xy = sum(xi * yi for xi, yi in zip(x, y))
+        sum_x_sq = sum(xi ** 2 for xi in x)
+        slope = (n * sum_xy - sum_x * sum_y) / (n * sum_x_sq - sum_x ** 2)
+        intercept = (sum_y - slope * sum_x) / n
+        self.results['slope'] = slope
+        self.results['intercept'] = intercept
+        return slope, intercept
+
+    def predict(self, x_value):
+        if 'slope' not in self.results or 'intercept' not in self.results:
+            raise ValueError("Model has not been trained")
+        return self.results['slope'] * x_value + self.results['intercept']
+
+    def quadratic_roots(self, a, b, c):
+        discriminant = b ** 2 - 4 * a * c
+        if discriminant < 0:
+            raise ValueError("No real roots")
+        root1 = (-b + math.sqrt(discriminant)) / (2 * a)
+        root2 = (-b - math.sqrt(discriminant)) / (2 * a)
+        self.history.append((root1, root2))
+        return root1, root2
+
+    def sum_of_squares(self, data):
+        result = sum(x ** 2 for x in data)
+        self.history.append(result)
+        return result
+
+    def geometric_mean(self, data):
+        if not data:
+            raise ValueError("Data cannot be empty")
+        result = np.prod(data) ** (1 / len(data))
+        self.history.append(result)
+        return result
+
+    def harmonic_mean(self, data):
+        if not data:
+            raise ValueError("Data cannot be empty")
+        result = len(data) / sum(1 / x for x in data)
+        self.history.append(result)
+        return result
+
+    def combination(self, n, r):
+        if r > n:
+            raise ValueError("r cannot be greater than n")
+        result = math.comb(n, r)
+        self.history.append(result)
+        return result
+
+    def permutation(self, n, r):
+        if r > n:
+            raise ValueError("r cannot be greater than n")
+        result = math.perm(n, r)
+        self.history.append(result)
+        return result
+
+    def nth_root(self, a, n):
+        if a < 0 and n % 2 == 0:
+            raise ValueError("Cannot take even root of a negative number")
+        result = a ** (1 / n)
+        self.history.append(result)
+        return result
+
+    def exp(self, a):
+        result = math.exp(a)
+        self.history.append(result)
+        return result
+
+    def log2(self, a):
+        if a <= 0:
+            raise ValueError("Logarithm only defined for positive numbers")
+        result = math.log2(a)
+        self.history.append(result)
+        return result
+
+    def log10(self, a):
+        if a <= 0:
+            raise ValueError("Logarithm only defined for positive numbers")
+        result = math.log10(a)
+        self.history.append(result)
+        return result
+
+    def gcd(self, a, b):
+        result = math.gcd(a, b)
+        self.history.append(result)
+        return result
+
+    def lcm(self, a, b):
+        result = abs(a * b) // math.gcd(a, b)
+        self.history.append(result)
+        return result
+
+    def binomial_coefficient(self, n, k):
+        result = math.comb(n, k)
+        self.history.append(result)
+        return result
