@@ -177,3 +177,105 @@ class FaceRecognitionGUI:
                 elif filter_type == 'gray':
                     self.frame = cv2.cvtColor(self.frame, cv2.COLOR_BGR2GRAY)
                     self.frame = cv2.cvtColor(self.frame, cv2.COLOR_GRAY2BGR)
+
+    def adjust_brightness(self, value):
+        if self.frame is not None:
+            hsv = cv2.cvtColor(self.frame, cv2.COLOR_BGR2HSV)
+            h, s, v = cv2.split(hsv)
+            v = cv2.add(v, value)
+            v = np.clip(v, 0, 255)
+            hsv = cv2.merge((h, s, v))
+            self.frame = cv2.cvtColor(hsv, cv2.COLOR_HSV2BGR)
+
+    def blur_faces(self):
+        if self.faces is not None and len(self.faces) > 0:
+            for (x, y, w, h) in self.faces:
+                roi = self.frame[y:y + h, x:x + w]
+                blurred_roi = cv2.GaussianBlur(roi, (99, 99), 30)
+                self.frame[y:y + h, x:x + w] = blurred_roi
+
+    def detect_eyes(self):
+        eye_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_eye.xml')
+        if self.faces is not None and len(self.faces) > 0:
+            for (x, y, w, h) in self.faces:
+                roi_gray = cv2.cvtColor(self.frame[y:y + h, x:x + w], cv2.COLOR_BGR2GRAY)
+                eyes = eye_cascade.detectMultiScale(roi_gray)
+                for (ex, ey, ew, eh) in eyes:
+                    cv2.rectangle(self.frame, (x + ex, y + ey), (x + ex + ew, y + ey + eh), (0, 255, 0), 2)
+
+    def detect_smile(self):
+        smile_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_smile.xml')
+        if self.faces is not None and len(self.faces) > 0:
+            for (x, y, w, h) in self.faces:
+                roi_gray = cv2.cvtColor(self.frame[y:y + h, x:x + w], cv2.COLOR_BGR2GRAY)
+                smiles = smile_cascade.detectMultiScale(roi_gray, scaleFactor=1.7, minNeighbors=22, minSize=(25, 25))
+                for (sx, sy, sw, sh) in smiles:
+                    cv2.rectangle(self.frame, (x + sx, y + sy), (x + sx + sw, y + sy + sh), (0, 255, 255), 2)
+
+    def record_video(self):
+        fourcc = cv2.VideoWriter_fourcc(*'XVID')
+        out = cv2.VideoWriter('output.avi', fourcc, 20.0, (640, 480))
+        self.running = True
+        while self.running:
+            ret, self.frame = self.cap.read()
+            if not ret:
+                continue
+            gray = cv2.cvtColor(self.frame, cv2.COLOR_BGR2GRAY)
+            faces = self.face_cascade.detectMultiScale(gray, scaleFactor=1.1, minNeighbors=5, minSize=(30, 30))
+            for (x, y, w, h) in faces:
+                cv2.rectangle(self.frame, (x, y), (x + w, y + h), (255, 0, 0), 2)
+            out.write(self.frame)
+            cv2.imshow('Recording Video', self.frame)
+            if cv2.waitKey(1) & 0xFF == ord('q'):
+                self.stop()
+                break
+        out.release()
+
+    def detect_profile_face(self):
+        profile_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_profileface.xml')
+        while self.running:
+            ret, self.frame = self.cap.read()
+            if not ret:
+                continue
+            gray = cv2.cvtColor(self.frame, cv2.COLOR_BGR2GRAY)
+            profiles = profile_cascade.detectMultiScale(gray, scaleFactor=1.1, minNeighbors=5, minSize=(30, 30))
+            for (x, y, w, h) in profiles:
+                cv2.rectangle(self.frame, (x, y), (x + w, y + h), (0, 255, 255), 2)
+            cv2.imshow('Profile Face Detection', self.frame)
+            if cv2.waitKey(1) & 0xFF == ord('q'):
+                self.stop()
+                break
+
+    def recognize_faces_in_photo(self, photo_path='photo.jpg'):
+        img = cv2.imread(photo_path)
+        gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+        faces = self.face_cascade.detectMultiScale(gray, scaleFactor=1.1, minNeighbors=5, minSize=(30, 30))
+        for (x, y, w, h) in faces:
+            cv2.rectangle(img, (x, y), (x + w, y + h), (255, 0, 0), 2)
+        cv2.imshow('Face Recognition in Photo', img)
+        cv2.waitKey(0)
+        cv2.destroyAllWindows()
+
+    def detect_faces_in_video(self, video_path='video.mp4'):
+        video = cv2.VideoCapture(video_path)
+        while video.isOpened():
+            ret, frame = video.read()
+            if not ret:
+                break
+            gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+            faces = self.face_cascade.detectMultiScale(gray, scaleFactor=1.1, minNeighbors=5, minSize=(30, 30))
+            for (x, y, w, h) in faces:
+                cv2.rectangle(frame, (x, y), (x + w, y + h), (255, 0, 0), 2)
+            cv2.imshow('Face Detection in Video', frame)
+            if cv2.waitKey(1) & 0xFF == ord('q'):
+                break
+        video.release()
+        cv2.destroyAllWindows()
+
+
+if __name__ == "__main__":
+    recognizer = FaceRecognizer()
+    gui = FaceRecognitionGUI(recognizer)
+    gui.run()
+
+
