@@ -1,0 +1,30 @@
+Category: E
+Mean: 28.43
+Standard Deviation: 23.74
+Min: 0.65
+Max: 84.73
+
+Category: A
+Mean: 37.25
+Standard Deviation: 25.63
+Min: 3.47
+Max: 88.31
+
+Category: D
+Mean: 26.77
+Standard Deviation: 23.86
+Min: 5.84
+Max: 84.05
+
+Category: C
+Mean: 22.80
+Standard Deviation: 18.73
+Min: 3.11
+Max: 61.89
+
+Category: B
+Mean: 27.94
+Standard Deviation: 24.19
+Min: 3.34
+Max: 87.26
+
