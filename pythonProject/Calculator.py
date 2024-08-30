@@ -224,3 +224,102 @@ class Calculator:
         result = math.comb(n, k)
         self.history.append(result)
         return result
+
+    def fibonacci(self, n):
+        a, b = 0, 1
+        sequence = []
+        while len(sequence) < n:
+            sequence.append(a)
+            a, b = b, a + b
+        self.history.append(sequence)
+        return sequence
+
+    def pascal_triangle(self, n):
+        triangle = [[1]]
+        for i in range(1, n):
+            row = [1]
+            for j in range(1, i):
+                row.append(triangle[i - 1][j - 1] + triangle[i - 1][j])
+            row.append(1)
+            triangle.append(row)
+        self.history.append(triangle)
+        return triangle
+
+    def sum_of_digits(self, n):
+        result = sum(int(digit) for digit in str(n))
+        self.history.append(result)
+        return result
+
+    def reverse_number(self, n):
+        result = int(str(n)[::-1])
+        self.history.append(result)
+        return result
+
+    def is_prime(self, n):
+        if n <= 1:
+            return False
+        for i in range(2, int(math.sqrt(n)) + 1):
+            if n % i == 0:
+                return False
+        return True
+
+    def prime_factors(self, n):
+        factors = []
+        divisor = 2
+        while n > 1:
+            while n % divisor == 0:
+                factors.append(divisor)
+                n //= divisor
+            divisor += 1
+        self.history.append(factors)
+        return factors
+
+    def is_palindrome(self, n):
+        result = str(n) == str(n)[::-1]
+        self.history.append(result)
+        return result
+
+    def to_binary(self, n):
+        result = bin(n)[2:]
+        self.history.append(result)
+        return result
+
+    def from_binary(self, binary_str):
+        result = int(binary_str, 2)
+        self.history.append(result)
+        return result
+
+    def to_hex(self, n):
+        result = hex(n)[2:]
+        self.history.append(result)
+        return result
+
+    def from_hex(self, hex_str):
+        result = int(hex_str, 16)
+        self.history.append(result)
+        return result
+
+    def to_octal(self, n):
+        result = oct(n)[2:]
+        self.history.append(result)
+        return result
+
+    def from_octal(self, octal_str):
+        result = int(octal_str, 8)
+        self.history.append(result)
+        return result
+
+    def sum_of_array(self, arr):
+        result = sum(arr)
+        self.history.append(result)
+        return result
+
+    def product_of_array(self, arr):
+        result = np.prod(arr)
+        self.history.append(result)
+        return result
+
+    def max_of_array(self, arr):
+        result = max(arr)
+        self.history.append(result)
+        return result
