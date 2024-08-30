@@ -323,3 +323,57 @@ class Calculator:
         result = max(arr)
         self.history.append(result)
         return result
+
+    def min_of_array(self, arr):
+        result = min(arr)
+        self.history.append(result)
+        return result
+
+    def sort_array(self, arr):
+        result = sorted(arr)
+        self.history.append(result)
+        return result
+
+    def array_range(self, arr):
+        result = max(arr) - min(arr)
+        self.history.append(result)
+        return result
+
+    def count_occurrences(self, arr, value):
+        result = arr.count(value)
+        self.history.append(result)
+        return result
+
+    def unique_values(self, arr):
+        result = list(set(arr))
+        self.history.append(result)
+        return result
+
+    def array_median(self, arr):
+        result = self.median(arr)
+        return result
+
+    def array_mean(self, arr):
+        result = self.mean(arr)
+        return result
+
+    def array_std_dev(self, arr):
+        result = self.std_dev(arr)
+        return result
+
+    def array_variance(self, arr):
+        result = self.variance(arr)
+        return result
+
+    def array_mode(self, arr):
+        result = self.mode(arr)
+        return result
+
+    def clear_history(self):
+        self.history = []
+
+    def get_history(self):
+        return self.history
+
+    def get_results(self):
+        return self.results
