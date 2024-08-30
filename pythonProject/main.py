@@ -1,151 +1,97 @@
-import random
-import string
-import numpy as np
+import tkinter as tk
+from tkinter import ttk
+from tkinter import messagebox
 
-class Main:
-    def __init__(self):
-        self.dataset = []
-        self.results = {}
-        self.model = None
-        self.setup()
+class MainApplication:
+    def __init__(self, root):
+        self.root = root
+        self.root.title("Face Analysis Suite")
+        self.root.geometry("500x400")
+        self.root.configure(bg="#f0f0f0")
 
-    def setup(self):
-        self.generate_data(100)
-        self.initialize_model()
-        self.analyze_data()
-        self.process_results()
-        self.finalize()
+        self.create_widgets()
+    def create_widgets(self):
+        title_label = ttk.Label(self.root, text="Face Analysis Suite", font=("Helvetica", 18), background="#f0f0f0")
+        title_label.pack(pady=20)
 
-    def generate_data(self, size):
-        for _ in range(size):
-            entry = {
-                'id': self.generate_id(),
-                'value': self.random_value(),
-                'category': self.random_category(),
-                'score': self.random_score()
-            }
-            self.dataset.append(entry)
-    def generate_id(self):
-        return ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(8))
+        description_label = ttk.Label(self.root, text="Seleziona una funzionalità per iniziare:", font=("Helvetica", 12), background="#f0f0f0")
+        description_label.pack(pady=10)
 
-    def random_value(self):
-        return round(random.uniform(1.0, 100.0), 2)
-    def random_category(self):
-        categories = ['A', 'B', 'C', 'D', 'E']
-        return random.choice(categories)
-    def random_score(self):
-        return random.randint(1, 10)
-    def initialize_model(self):
-        self.model = np.random.random((10, 10))
-    def analyze_data(self):
-        for entry in self.dataset:
-            self.evaluate_entry(entry)
-    def evaluate_entry(self, entry):
-        category = entry['category']
-        score = entry['score']
-        value = entry['value']
-        result = self.calculate_result(category, score, value)
-        if category not in self.results:
-            self.results[category] = []
-        self.results[category].append(result)
-    def calculate_result(self, category, score, value):
-        factor = self.model[ord(category) % 10][score - 1]
-        return value * factor
-    def process_results(self):
-        self.summary = {}
-        for category, results in self.results.items():
-            self.summary[category] = {
-                'mean': self.calculate_mean(results),
-                'std_dev': self.calculate_std_dev(results),
-                'min': min(results),
-                'max': max(results)
-            }
+        self.create_buttons()
+        self.create_status_bar()
+    def create_buttons(self):
+        button_frame = ttk.Frame(self.root)
+        button_frame.pack(pady=20)
+        emotion_button = ttk.Button(button_frame, text="Riconoscimento Emozioni", command=self.recognize_emotions, width=30)
+        emotion_button.grid(row=0, column=0, padx=10, pady=10)
+        blink_button = ttk.Button(button_frame, text="Riconoscimento Blink Occhi", command=self.recognize_blink, width=30)
+        blink_button.grid(row=0, column=1, padx=10, pady=10)
+        age_button = ttk.Button(button_frame, text="Riconoscimento Età", command=self.recognize_age, width=30)
+        age_button.grid(row=1, column=0, padx=10, pady=10)
 
-    def calculate_mean(self, values):
-        return sum(values) / len(values)
+        eye_tracking_button = ttk.Button(button_frame, text="Eye Tracking", command=self.eye_tracking, width=30)
+        eye_tracking_button.grid(row=1, column=1, padx=10, pady=10)
+        settings_button = ttk.Button(button_frame, text="Impostazioni", command=self.settings, width=30)
+        settings_button.grid(row=2, column=0, columnspan=2, pady=20)
+    def create_status_bar(self):
+        self.status_var = tk.StringVar()
+        self.status_var.set("Pronto")
 
-    def calculate_std_dev(self, values):
-        mean = self.calculate_mean(values)
-        variance = sum((x - mean) ** 2 for x in values) / len(values)
-        return variance ** 0.5
+        status_bar = ttk.Label(self.root, textvariable=self.status_var, relief=tk.SUNKEN, anchor=tk.W)
+        status_bar.pack(fill=tk.X, side=tk.BOTTOM, ipady=2)
+    def update_status(self, message):
+        self.status_var.set(message)
+    def recognize_emotions(self):
+        self.update_status("Riconoscimento delle emozioni in corso...")
+        # Placeholder per il codice di riconoscimento delle emozioni
+        messagebox.showinfo("Riconoscimento Emozioni", "Funzione non ancora implementata.")
+        self.update_status("Pronto")
 
-    def finalize(self):
-        self.display_summary()
-        self.export_summary()
+    def recognize_blink(self):
+        self.update_status("Riconoscimento blink degli occhi in corso...")
+        # Placeholder per il codice di riconoscimento del blink degli occhi
+        messagebox.showinfo("Riconoscimento Blink Occhi", "Funzione non ancora implementata.")
+        self.update_status("Pronto")
+    def recognize_age(self):
+        self.update_status("Riconoscimento dell'età in corso...")
+        # Placeholder per il codice di riconoscimento dell'età
+        messagebox.showinfo("Riconoscimento Età", "Funzione non ancora implementata.")
+        self.update_status("Pronto")
+    def eye_tracking(self):
+        self.update_status("Eye tracking in corso...")
+        # Placeholder per il codice di eye tracking
+        messagebox.showinfo("Eye Tracking", "Funzione non ancora implementata.")
+        self.update_status("Pronto")
+    def settings(self):
+        self.update_status("Apertura impostazioni...")
+        settings_window = tk.Toplevel(self.root)
+        settings_window.title("Impostazioni")
+        settings_window.geometry("400x300")
+        settings_window.configure(bg="#f0f0f0")
 
-    def display_summary(self):
-        for category, stats in self.summary.items():
-            print(f'Category: {category}')
-            print(f"Mean: {stats['mean']:.2f}")
-            print(f"Standard Deviation: {stats['std_dev']:.2f}")
-            print(f"Min: {stats['min']:.2f}")
-            print(f"Max: {stats['max']:.2f}")
-            print('')
+        volume_label = ttk.Label(settings_window, text="Volume", font=("Helvetica", 12), background="#f0f0f0")
+        volume_label.pack(pady=10)
 
-    def export_summary(self):
-        with open('summary.txt', 'w') as file:
-            for category, stats in self.summary.items():
-                file.write(f'Category: {category}\n')
-                file.write(f"Mean: {stats['mean']:.2f}\n")
-                file.write(f"Standard Deviation: {stats['std_dev']:.2f}\n")
-                file.write(f"Min: {stats['min']:.2f}\n")
-                file.write(f"Max: {stats['max']:.2f}\n")
-                file.write('\n')
+        volume_slider = ttk.Scale(settings_window, from_=0, to=100, orient=tk.HORIZONTAL)
+        volume_slider.pack(pady=10)
 
-    def simulate_process(self):
-        iterations = random.randint(5, 15)
-        for _ in range(iterations):
-            self.single_process()
+        brightness_label = ttk.Label(settings_window, text="Luminosità", font=("Helvetica", 12), background="#f0f0f0")
+        brightness_label.pack(pady=10)
 
-    def single_process(self):
-        entry = self.generate_simulation_entry()
-        result = self.evaluate_entry(entry)
-        self.results[entry['category']].append(result)
+        brightness_slider = ttk.Scale(settings_window, from_=0, to=100, orient=tk.HORIZONTAL)
+        brightness_slider.pack(pady=10)
 
-    def generate_simulation_entry(self):
-        return {
-            'id': self.generate_id(),
-            'value': self.random_value(),
-            'category': self.random_category(),
-            'score': self.random_score()
-        }
+        save_button = ttk.Button(settings_window, text="Salva", command=lambda: self.save_settings(settings_window))
+        save_button.pack(pady=20)
 
-    def advanced_analysis(self):
-        for category, results in self.results.items():
-            filtered = self.filter_results(results)
-            self.summary[category]['filtered_mean'] = self.calculate_mean(filtered)
+        self.update_status("Pronto")
 
-    def filter_results(self, results):
-        threshold = np.mean(results) * 0.9
-        return [x for x in results if x > threshold]
+    def save_settings(self, window):
+        messagebox.showinfo("Impostazioni", "Impostazioni salvate con successo!")
+        window.destroy()
+        self.update_status("Pronto")
 
-    def random_event(self):
-        event_type = random.choice(['A', 'B', 'C'])
-        if event_type == 'A':
-            self.trigger_event_a()
-        elif event_type == 'B':
-            self.trigger_event_b()
-        else:
-            self.trigger_event_c()
-
-    def trigger_event_a(self):
-        print('Event A triggered')
-        self.simulate_process()
-
-    def trigger_event_b(self):
-        print('Event B triggered')
-        for _ in range(3):
-            self.single_process()
-
-    def trigger_event_c(self):
-        print('Event C triggered')
-        self.advanced_analysis()
-
-    def run(self):
-        for _ in range(10):
-            self.random_event()
-
-if __name__ == '__main__':
-    program = Main()
-    program.run()
-
+if __name__ == "__main__":
+    root = tk.Tk()
+    app = MainApplication(root)
+    root.mainloop()
