@@ -95,3 +95,88 @@ class FaceRecognizer:
     def change_resolution(self, width, height):
         self.cap.set(cv2.CAP_PROP_FRAME_WIDTH, width)
         self.cap.set(cv2.CAP_PROP_FRAME_HEIGHT, height)
+
+        def flip_frame(self, direction=1):
+            if self.frame is not None:
+                self.frame = cv2.flip(self.frame, direction)
+
+        def save_frame(self, filename='frame.jpg'):
+            if self.frame is not None:
+                cv2.imwrite(filename, self.frame)
+                print(f'Frame saved as {filename}')
+
+        def detect_eyes(self):
+            eye_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_eye.xml')
+            if self.faces is not None and len(self.faces) > 0:
+                for (x, y, w, h) in self.faces:
+                    roi_gray = cv2.cvtColor(self.frame[y:y + h, x:x + w], cv2.COLOR_BGR2GRAY)
+                    eyes = eye_cascade.detectMultiScale(roi_gray)
+                    for (ex, ey, ew, eh) in eyes:
+                        cv2.rectangle(self.frame, (x + ex, y + ey), (x + ex + ew, y + ey + eh), (0, 255, 0), 2)
+
+        def detect_smile(self):
+            smile_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_smile.xml')
+            if self.faces is not None and len(self.faces) > 0:
+                for (x, y, w, h) in self.faces:
+                    roi_gray = cv2.cvtColor(self.frame[y:y + h, x:x + w], cv2.COLOR_BGR2GRAY)
+                    smiles = smile_cascade.detectMultiScale(roi_gray, scaleFactor=1.7, minNeighbors=22,
+                                                            minSize=(25, 25))
+                    for (sx, sy, sw, sh) in smiles:
+                        cv2.rectangle(self.frame, (x + sx, y + sy), (x + sx + sw, y + sy + sh), (0, 0, 255), 2)
+
+        def record_video(self, filename='output.avi', duration=10):
+            fourcc = cv2.VideoWriter_fourcc(*'XVID')
+            out = cv2.VideoWriter(filename, fourcc, 20.0, (640, 480))
+            start_time = time.time()
+            while self.running and (time.time() - start_time) < duration:
+                ret, frame = self.cap.read()
+                if not ret:
+                    break
+                out.write(frame)
+                cv2.imshow('Recording', frame)
+                if cv2.waitKey(1) & 0xFF == ord('q'):
+                    break
+            out.release()
+            print(f'Video saved as {filename}')
+
+        def toggle_face_detection(self):
+            face_detection = True
+            while self.running:
+                ret, self.frame = self.cap.read()
+                if not ret:
+                    continue
+                if face_detection:
+                    gray = cv2.cvtColor(self.frame, cv2.COLOR_BGR2GRAY)
+                    self.faces = self.face_cascade.detectMultiScale(gray, scaleFactor=1.1, minNeighbors=5,
+                                                                    minSize=(30, 30))
+                    self._draw_faces()
+                cv2.imshow('Face Detection Toggle', self.frame)
+                key = cv2.waitKey(1)
+                if key & 0xFF == ord('q'):
+                    self.stop()
+                    break
+                elif key & 0xFF == ord('d'):
+                    face_detection = not face_detection
+
+        def zoom(self, scale=1.2):
+            if self.frame is not None:
+                height, width = self.frame.shape[:2]
+                new_width = int(width / scale)
+                new_height = int(height / scale)
+                x1 = (width - new_width) // 2
+                y1 = (height - new_height) // 2
+                x2 = x1 + new_width
+                y2 = y1 + new_height
+                self.frame = cv2.resize(self.frame[y1:y2, x1:x2], (width, height))
+
+        def pan(self, direction='right', step=10):
+            if self.frame is not None:
+                height, width = self.frame.shape[:2]
+                if direction == 'right':
+                    self.frame = np.roll(self.frame, step, axis=1)
+                elif direction == 'left':
+                    self.frame = np.roll(self.frame, -step, axis=1)
+                elif direction == 'up':
+                    self.frame = np.roll(self.frame, -step, axis=0)
+                elif direction == 'down':
+                    self.frame = np.roll(self.frame, step, axis=0)
