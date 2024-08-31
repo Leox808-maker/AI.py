@@ -114,3 +114,80 @@ class EyeTracker:
 
         video.release()
         cv2.destroyAllWindows()
+
+        def toggle_fullscreen(self, window_name='Eye Tracking'):
+            cv2.namedWindow(window_name, cv2.WND_PROP_FULLSCREEN)
+            cv2.setWindowProperty(window_name, cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
+
+        def snapshot(self, window_name='Eye Tracking'):
+            ret, frame = self.cap.read()
+            if ret:
+                cv2.imshow(window_name, frame)
+                cv2.imwrite(f'snapshot_{int(time.time())}.jpg', frame)
+
+        def apply_filter(self, filter_name="blur"):
+            if filter_name == "blur":
+                kernel_size = (15, 15)
+                ret, frame = self.cap.read()
+                if ret:
+                    blurred_frame = cv2.GaussianBlur(frame, kernel_size, 0)
+                    cv2.imshow("Filtered Frame", blurred_frame)
+
+        def start_tracking_timeline(self):
+            tracking_timeline = []
+            while self.is_running:
+                ret, frame = self.cap.read()
+                if not ret:
+                    break
+
+                gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+                faces = self.detector(gray, 0)
+
+                for face in faces:
+                    shape = self.predictor(gray, face)
+                    shape = self.shape_to_np(shape)
+
+                    leftEye = shape[self.lStart:self.lEnd]
+                    rightEye = shape[self.rStart:self.rEnd]
+
+                    self._draw_eye_contours(frame, leftEye, rightEye)
+                    leftEyeCenter = np.mean(leftEye, axis=0)
+                    rightEyeCenter = np.mean(rightEye, axis=0)
+                    tracking_timeline.append((leftEyeCenter, rightEyeCenter))
+
+                cv2.imshow('Eye Tracking - Timeline', frame)
+
+                if cv2.waitKey(1) & 0xFF == ord('q'):
+                    break
+
+            self.is_running = False
+            self._analyze_timeline(tracking_timeline)
+
+        def _analyze_timeline(self, timeline):
+            if len(timeline) < 2:
+                return
+
+            movements = [np.linalg.norm(np.array(timeline[i][0]) - np.array(timeline[i - 1][0])) +
+                         np.linalg.norm(np.array(timeline[i][1]) - np.array(timeline[i - 1][1]))
+                         for i in range(1, len(timeline))]
+
+            average_movement = np.mean(movements)
+            print(f"Movimento medio degli occhi: {average_movement:.2f} pixel")
+
+        def set_tracking_sensitivity(self, sensitivity):
+            self.sensitivity = sensitivity
+
+        def get_eye_aspect_ratio(self, eye_points):
+            A = np.linalg.norm(eye_points[1] - eye_points[5])
+            B = np.linalg.norm(eye_points[2] - eye_points[4])
+            C = np.linalg.norm(eye_points[0] - eye_points[3])
+            return (A + B) / (2.0 * C)
+
+        def reset_tracking(self):
+            self.cap.release()
+            self.cap = cv2.VideoCapture(0)
+            self.is_running = False
+            self.start_tracking()
+
+        def not_implemented_yet(self):
+            print("Questa funzione non è ancora stata implementata.")
