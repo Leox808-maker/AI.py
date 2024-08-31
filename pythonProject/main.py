@@ -1,6 +1,8 @@
 import tkinter as tk
 from tkinter import ttk
 from tkinter import messagebox
+import EmotionRecognizer
+import threading
 
 class MainApplication:
     def __init__(self, root):
@@ -8,6 +10,7 @@ class MainApplication:
         self.root.title("Face Analysis Suite")
         self.root.geometry("500x400")
         self.root.configure(bg="#f0f0f0")
+        self.recognizer = EmotionRecognizer()
 
         self.create_widgets()
     def create_widgets(self):
@@ -33,6 +36,7 @@ class MainApplication:
         eye_tracking_button.grid(row=1, column=1, padx=10, pady=10)
         settings_button = ttk.Button(button_frame, text="Impostazioni", command=self.settings, width=30)
         settings_button.grid(row=2, column=0, columnspan=2, pady=20)
+
     def create_status_bar(self):
         self.status_var = tk.StringVar()
         self.status_var.set("Pronto")
@@ -43,23 +47,22 @@ class MainApplication:
         self.status_var.set(message)
     def recognize_emotions(self):
         self.update_status("Riconoscimento delle emozioni in corso...")
-        # Placeholder per il codice di riconoscimento delle emozioni
         messagebox.showinfo("Riconoscimento Emozioni", "Funzione non ancora implementata.")
+        self.update_status("Pronto")
+        #recognition_thread = Thread(target=self.recognizer.start_recognition)
+        #recognition_thread.start()
         self.update_status("Pronto")
 
     def recognize_blink(self):
         self.update_status("Riconoscimento blink degli occhi in corso...")
-        # Placeholder per il codice di riconoscimento del blink degli occhi
         messagebox.showinfo("Riconoscimento Blink Occhi", "Funzione non ancora implementata.")
         self.update_status("Pronto")
     def recognize_age(self):
         self.update_status("Riconoscimento dell'età in corso...")
-        # Placeholder per il codice di riconoscimento dell'età
         messagebox.showinfo("Riconoscimento Età", "Funzione non ancora implementata.")
         self.update_status("Pronto")
     def eye_tracking(self):
         self.update_status("Eye tracking in corso...")
-        # Placeholder per il codice di eye tracking
         messagebox.showinfo("Eye Tracking", "Funzione non ancora implementata.")
         self.update_status("Pronto")
     def settings(self):
@@ -95,3 +98,32 @@ if __name__ == "__main__":
     root = tk.Tk()
     app = MainApplication(root)
     root.mainloop()
+
+
+    def on_button_click(self, button):
+        if button == "Riconoscimento emozioni":
+            self.start_emotion_recognition()
+        elif button == "Riconoscimento blink occhi":
+            self.start_blink_recognition()
+        elif button == "Riconoscimento età":
+            self.start_age_recognition()
+        elif button == "Eye tracking":
+            self.start_eye_tracking()
+        elif button == "Impostazioni":
+            self.open_settings()
+        else:
+            self.show_message(f"La funzione '{button}' non è ancora stata implementata.")
+
+    def show_message(self, message):
+        messagebox.showinfo("Info", message)
+    def start_emotion_recognition(self):
+        self.show_message("La funzione di riconoscimento delle emozioni non è ancora stata implementata.")
+    def start_blink_recognition(self):
+        self.show_message("La funzione di riconoscimento del blink occhi non è ancora stata implementata.")
+    def start_age_recognition(self):
+        self.show_message("La funzione di riconoscimento dell'età non è ancora stata implementata.")
+    def start_eye_tracking(self):
+        self.show_message("La funzione di eye tracking non è ancora stata implementata.")
+    def open_settings(self):
+        self.show_message("La funzione di impostazioni non è ancora stata implementata.")
+

@@ -118,7 +118,7 @@ class EmotionRecognizer:
         cv2.waitKey(0)
         cv2.destroyAllWindows()
 
-        def recognize_emotion_from_image(self, image_path):
+    def recognize_emotion_from_image(self, image_path):
             image = cv2.imread(image_path)
             gray_image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
             faces = self.face_detector.detectMultiScale(gray_image, scaleFactor=1.1, minNeighbors=5, minSize=(30, 30))
@@ -132,30 +132,30 @@ class EmotionRecognizer:
             cv2.waitKey(0)
             cv2.destroyAllWindows()
 
-        def set_capture_resolution(self, width, height):
+    def set_capture_resolution(self, width, height):
             self.cap.set(cv2.CAP_PROP_FRAME_WIDTH, width)
             self.cap.set(cv2.CAP_PROP_FRAME_HEIGHT, height)
 
-        def set_video_source(self, source=0):
+    def set_video_source(self, source=0):
             self.cap = cv2.VideoCapture(source)
 
-        def reset_recognition(self):
+    def reset_recognition(self):
             self.cap.release()
             self.cap = cv2.VideoCapture(0)
             self.is_running = False
 
-        def toggle_fullscreen(self, window_name='Riconoscimento Emozioni'):
+    def toggle_fullscreen(self, window_name='Riconoscimento Emozioni'):
             cv2.namedWindow(window_name, cv2.WND_PROP_FULLSCREEN)
             cv2.setWindowProperty(window_name, cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
 
-        def snapshot(self, window_name='Riconoscimento Emozioni'):
+    def snapshot(self, window_name='Riconoscimento Emozioni'):
             ret, frame = self.cap.read()
             if ret:
                 cv2.imshow(window_name, frame)
                 cv2.imwrite(f'snapshot_{int(time.time())}.jpg', frame)
                 print(f"Snapshot salvato come snapshot_{int(time.time())}.jpg")
 
-        def apply_filter(self, filter_name="blur"):
+    def apply_filter(self, filter_name="blur"):
             if filter_name == "blur":
                 kernel_size = (15, 15)
                 ret, frame = self.cap.read()
@@ -163,7 +163,7 @@ class EmotionRecognizer:
                     blurred_frame = cv2.GaussianBlur(frame, kernel_size, 0)
                     cv2.imshow("Filtered Frame", blurred_frame)
 
-        def start_emotion_timeline(self):
+    def start_emotion_timeline(self):
             emotion_timeline = []
             while self.is_running:
                 ret, frame = self.cap.read()
@@ -189,7 +189,7 @@ class EmotionRecognizer:
             self.is_running = False
             self._analyze_timeline(emotion_timeline)
 
-        def _analyze_timeline(self, timeline):
+    def _analyze_timeline(self, timeline):
             emotion_counts = {emotion: 0 for emotion in self.emotions}
             for emotion, _ in timeline:
                 if emotion in emotion_counts:
@@ -199,5 +199,12 @@ class EmotionRecognizer:
             for emotion, count in emotion_counts.items():
                 print(f"{emotion}: {count} volte")
 
-        def not_implemented_yet(self):
+    def not_implemented_yet(self):
             messagebox.showinfo("Non Implementato", "Questa funzione non è ancora stata implementata.")
+
+    def recognize_emotions(self):
+        self.update_status("Riconoscimento delle emozioni in corso...")
+        recognizer = EmotionRecognizer()
+        recognizer.start_recognition()
+        self.update_status("Pronto")
+
