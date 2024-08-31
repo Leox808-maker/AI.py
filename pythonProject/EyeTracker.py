@@ -115,17 +115,17 @@ class EyeTracker:
         video.release()
         cv2.destroyAllWindows()
 
-        def toggle_fullscreen(self, window_name='Eye Tracking'):
+    def toggle_fullscreen(self, window_name='Eye Tracking'):
             cv2.namedWindow(window_name, cv2.WND_PROP_FULLSCREEN)
             cv2.setWindowProperty(window_name, cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
 
-        def snapshot(self, window_name='Eye Tracking'):
+    def snapshot(self, window_name='Eye Tracking'):
             ret, frame = self.cap.read()
             if ret:
                 cv2.imshow(window_name, frame)
                 cv2.imwrite(f'snapshot_{int(time.time())}.jpg', frame)
 
-        def apply_filter(self, filter_name="blur"):
+    def apply_filter(self, filter_name="blur"):
             if filter_name == "blur":
                 kernel_size = (15, 15)
                 ret, frame = self.cap.read()
@@ -133,7 +133,7 @@ class EyeTracker:
                     blurred_frame = cv2.GaussianBlur(frame, kernel_size, 0)
                     cv2.imshow("Filtered Frame", blurred_frame)
 
-        def start_tracking_timeline(self):
+    def start_tracking_timeline(self):
             tracking_timeline = []
             while self.is_running:
                 ret, frame = self.cap.read()
@@ -163,7 +163,7 @@ class EyeTracker:
             self.is_running = False
             self._analyze_timeline(tracking_timeline)
 
-        def _analyze_timeline(self, timeline):
+    def _analyze_timeline(self, timeline):
             if len(timeline) < 2:
                 return
 
@@ -174,20 +174,20 @@ class EyeTracker:
             average_movement = np.mean(movements)
             print(f"Movimento medio degli occhi: {average_movement:.2f} pixel")
 
-        def set_tracking_sensitivity(self, sensitivity):
+    def set_tracking_sensitivity(self, sensitivity):
             self.sensitivity = sensitivity
 
-        def get_eye_aspect_ratio(self, eye_points):
+    def get_eye_aspect_ratio(self, eye_points):
             A = np.linalg.norm(eye_points[1] - eye_points[5])
             B = np.linalg.norm(eye_points[2] - eye_points[4])
             C = np.linalg.norm(eye_points[0] - eye_points[3])
             return (A + B) / (2.0 * C)
 
-        def reset_tracking(self):
+    def reset_tracking(self):
             self.cap.release()
             self.cap = cv2.VideoCapture(0)
             self.is_running = False
             self.start_tracking()
 
-        def not_implemented_yet(self):
+    def not_implemented_yet(self):
             print("Questa funzione non è ancora stata implementata.")
