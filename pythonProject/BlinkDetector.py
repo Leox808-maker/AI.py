@@ -90,3 +90,115 @@ class BlinkDetector:
         for i in range(0, 68):
             coords[i] = (shape.part(i).x, shape.part(i).y)
         return coords
+
+    def save_frame(self, frame):
+        filename = f'blink_{int(time.time())}.jpg'
+        cv2.imwrite(filename, frame)
+
+    def process_video_file(self, file_path):
+        video = cv2.VideoCapture(file_path)
+        while video.isOpened():
+            ret, frame = video.read()
+            if not ret:
+                break
+
+            gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+            rects = self.detector(gray, 0)
+
+            for rect in rects:
+                shape = self.predictor(gray, rect)
+                shape = self.shape_to_np(shape)
+
+                leftEye = shape[self.lStart:self.lEnd]
+                rightEye = shape[self.rStart:self.rEnd]
+                leftEAR = self.eye_aspect_ratio(leftEye)
+                rightEAR = self.eye_aspect_ratio(rightEye)
+
+                ear = (leftEAR + rightEAR) / 2.0
+
+                if ear < self.EYE_AR_THRESH:
+                    self.COUNTER += 1
+                else:
+                    if self.COUNTER >= self.EYE_AR_CONSEC_FRAMES:
+                        self.TOTAL += 1
+                    self.COUNTER = 0
+
+            cv2.imshow("Video", frame)
+
+            if cv2.waitKey(1) & 0xFF == ord('q'):
+                break
+
+        video.release()
+        cv2.destroyAllWindows()
+
+    def set_blink_threshold(self, threshold):
+        self.EYE_AR_THRESH = threshold
+
+    def set_consecutive_frame_threshold(self, frames):
+        self.EYE_AR_CONSEC_FRAMES = frames
+
+    def toggle_fullscreen(self, window_name='Frame'):
+        cv2.namedWindow(window_name, cv2.WND_PROP_FULLSCREEN)
+        cv2.setWindowProperty(window_name, cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
+
+    def snapshot(self, window_name='Frame'):
+        ret, frame = self.cap.read()
+        if ret:
+            cv2.imshow(window_name, frame)
+            cv2.imwrite(f'snapshot_{int(time.time())}.jpg', frame)
+
+    def apply_filter(self, filter_name="blur"):
+        if filter_name == "blur":
+            kernel_size = (15, 15)
+            ret, frame = self.cap.read()
+            if ret:
+                blurred_frame = cv2.GaussianBlur(frame, kernel_size, 0)
+                cv2.imshow("Filtered Frame", blurred_frame)
+
+    def start_blink_timeline(self):
+        blink_timeline = []
+        while self.is_running:
+            ret, frame = self.cap.read()
+            if not ret:
+                break
+
+            gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+            rects = self.detector(gray, 0)
+
+            for rect in rects:
+                shape = self.predictor(gray, rect)
+                shape = self.shape_to_np(shape)
+
+                leftEye = shape[self.lStart:self.lEnd]
+                rightEye = shape[self.rStart:self.rEnd]
+                leftEAR = self.eye_aspect_ratio(leftEye)
+                rightEAR = self.eye_aspect_ratio(rightEye)
+
+                ear = (leftEAR + rightEAR) / 2.0
+
+                if ear < self.EYE_AR_THRESH:
+                    self.COUNTER += 1
+                else:
+                    if self.COUNTER >= self.EYE_AR_CONSEC_FRAMES:
+                        self.TOTAL += 1
+                        blink_timeline.append(time.time())
+                    self.COUNTER = 0
+
+            cv2.imshow('Rilevamento Blink - Timeline', frame)
+
+            if cv2.waitKey(1) & 0xFF == ord('q'):
+                break
+
+        self.is_running = False
+        self._analyze_timeline(blink_timeline)
+
+    def _analyze_timeline(self, timeline):
+        if len(timeline) < 2:
+            return
+
+        blink_intervals = np.diff(timeline)
+        average_blink_rate = np.mean(blink_intervals)
+        print(f"Intervallo medio tra i blink: {average_blink_rate:.2f} secondi")
+
+    def not_implemented_yet(self):
+        messagebox.showinfo("Non Implementato", "Questa funzione non è ancora stata implementata.")
